@@ -40,7 +40,7 @@ on:
           - Android15-6.6
           - Android16-6.12
           - Custom
-        default: All
+        default: Android16-6.12
       ksu_variant:
         description: "Choose KernelSU variant"
         required: true
@@ -48,7 +48,7 @@ on:
         options:
           - KSU
           - WKSU
-        default: WKSU
+        default: KSU
       ksu_commit:
         description: "Optional KernelSU commit SHA"
         required: false
@@ -241,9 +241,7 @@ jobs:
                 artifact_name=$(basename "$dir")
                 echo "Creating ZIP for $artifact_name..."
                 # Navigate into the directory and zip its contents directly
-                cd "$dir"
-                zip -r -9 "../../${artifact_name}.zip" ./*
-                cd - > /dev/null
+                (cd "$dir" && zip -r -9 "$GITHUB_WORKSPACE/${artifact_name}.zip" ./*)
                 echo "Uploading ${artifact_name}.zip..."
                 gh release upload ${{ env.NEW_TAG }} "${artifact_name}.zip"
               fi
