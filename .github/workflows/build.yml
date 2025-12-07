@@ -427,7 +427,7 @@ jobs:
           SUFFIX="-${{ inputs.os_patch_level }}-Compiled_by_ChauTruongThinh"
           echo "SUFFIX=$SUFFIX"
           
-          sed -i '$s|echo "\$res"|echo "\$SUFFIX"|' ./common/scripts/setlocalversion
+          sed -i "\$s|echo \"\$res\"|echo \"$SUFFIX\"|" "./common/scripts/setlocalversion"
           
           UTS_VERSION="GKI-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-${{ inputs.ksu_variant }}-$SUSFS_VERSION"
           perl -pi -e "s|UTS_VERSION=\".*\"|UTS_VERSION=\"${UTS_VERSION}\"|" "./common/scripts/mkcompile_h"
