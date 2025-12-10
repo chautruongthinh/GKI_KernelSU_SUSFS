@@ -28,6 +28,7 @@ on:
         options:
           - KSU
           - WKSU
+          - SukiSU
         default: KSU
       ksu_commit:
         description: "Optional KernelSU commit SHA"
@@ -50,7 +51,7 @@ jobs:
       - build-android13-5-15
     env:
       GH_TOKEN: ${{ github.token }}
-      RELEASE_NAME: "GKI Kernels With WKSU & SUSFS v2.0.0"
+      RELEASE_NAME: ${{ inputs.ksu_variant == 'SukiSU' && 'GKI Kernels With SukiSU & SUSFS v2.0.0' || 'GKI Kernels With WKSU & SUSFS v2.0.0' }}
       RELEASE_BODY: ""
     steps:      
       - name: Checkout code
@@ -72,7 +73,8 @@ jobs:
           echo "New tag: $NEW_TAG"
           echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
 
-      - name: Set release body
+      - name: Set release body KSU
+        if: inputs.ksu_variant != 'SukiSU'
         run: |
           cat << 'EOF' > release_body.md
       
@@ -117,11 +119,39 @@ jobs:
           -> Next: https://github.com/KernelSU-Next/KernelSU-Next
           EOF
 
+      - name: Set release body SukiSU
+        if: inputs.ksu_variant == 'SukiSU'
+        run: |
+          cat << 'EOF' > release_body.md      
+          This release includes SukiSU
+        
+          Features:
+          -> SukiSU-Stable
+          -> SUSFS ඞ v2.0.0
+          -> Manual Syscall Hooks for better hiding
+          -> Magic Mount Support
+          -> Simple hiding for LineageOS detection
+          -> Futile hiding for jit-zygote-cache detection
+          -> Wireguard Support
+          -> BBR Supported
+      
+          <details>
+          <summary>Notes:</summary>
+          - -> In SUS SU Mode 2, it will show as disabled or incompatible, the reason is that non-kprobe hooks were used (when compiling the kernel), and non-kprobe hooks are no longer needed!
+          - -> In the latest version of susfs, flashing AK3 compressed package with Kernel Flasher will brick your device, try [Horizon Kernel Flasher]\(https://github.com/libxzr/HorizonKernelFlasher)!
+          </details>
+        
+          Modules:
+          -> https://github.com/sidex15/ksu_module_susfs
+          SukiSU Manager:
+          -> https://github.com/ShirkNeko/SukiSU-Ultra
+          EOF
+          
       - name: Download Artifacts
         uses: actions/download-artifact@v5
         with:
           path: ./downloaded-artifacts
-          pattern: '*-Misc'
+          pattern: "*-${{ inputs.ksu_variant }}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
