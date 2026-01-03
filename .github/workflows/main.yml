@@ -16,11 +16,6 @@ on:
           - Pre-Release
           - Release
         default: Actions
-      build_selection:
-        description: "Choose which kernels to build"
-        required: true
-        type: string
-        default: Android13-5.15
       ksu_variant:
         description: "Choose KernelSU variant"
         required: true
@@ -28,12 +23,20 @@ on:
         options:
           - KSU
           - WKSU
+          - Next
           - SukiSU
-        default: KSU
+        default: WKSU
       ksu_commit:
         description: "Optional KernelSU commit SHA"
         required: false
         type: string
+      
+      # Build Selection
+      build_selection:
+        description: "Choose which kernels to build"
+        required: true
+        type: string
+        default: Android13-5.15
 
 jobs:
   build-android13-5-15:
@@ -73,50 +76,47 @@ jobs:
           echo "New tag: $NEW_TAG"
           echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
 
-      - name: Set release body KSU
+      - name: Set release body
         if: inputs.ksu_variant != 'SukiSU'
         run: |
           cat << 'EOF' > release_body.md
-      
+          
           **IMPORTANT DISCLAIMER**
           This software is provided for testing and educational purposes only. Use at your own risk.
           The developers are not responsible for any damage, data loss, or issues that may occur.
           Please ensure you have proper backups before installation.
-
+          
           🔹 Normal 
           - Default kernel configuration 
           - Standard kernel module loading behavior 
           - Recommended for most users 
-
+          
           Features:
           -> Wild KSU
           -> Multi Manager Support for WKSU, KernelSU-Next! Needs Testing: KSU, MKSU RKSU, xxKSU, KowSU and SukiSU (Best compatibility with WKSU, no support will be provided for other managers)
           -> SUSFS ඞ v2.0.0
-          -> Scope-Minimized Manual hooks v1.4
+          -> Hybrid Root Hooks          
           -> Ptrace Patch Support for Older Kernels (<5.16)
           -> IPSet Support for Advanced Network Filtering
           -> Wireguard Support
-
+          -> BBR v1 Support
+          -> BBG: https://github.com/vc-teahouse/Baseband-guard
+          
           🔹 BBG (Baseband-guard)
           - A lightweight LSM (Linux Security Module) for Android kernel
           - Blocks unauthorized writes to critical partitions/device nodes
           - Prevents malicious tampering with baseband and boot chain
           - Kernel-level protection via LSM hooks
           - Reduces risk of soft-brick/hard-brick issues          
-
-          Notes:
-          -> SUS SU Mode 2 will show as disabled or not compatible due to non-kprobe hooks and is not needed anymore!
-          -> Official Kernel Flasher is broken with latest susfs, try https://github.com/fatalcoder524/KernelFlasher/
-          -> **boot.img files**: Available as CI artifacts only - download from the Actions tab in the "Misc" Artifact
-          -> **Warning**: boot.img files may not boot on some devices
-          -> **Note:** For detailed commit information and component versions, please check the build summary in the "Misc" Artifact
-
+          
+          Kernel Flasher:
+          -> https://github.com/fatalcoder524/KernelFlasher/
+          
+          Manager:
+          -> Next: https://github.com/KernelSU-Next/KernelSU-Next
+          
           Module: 
           -> https://github.com/sidex15/ksu_module_susfs
-      
-          Managers:
-          -> WKSU: https://github.com/WildKernels/Wild_KSU
-          -> Next: https://github.com/KernelSU-Next/KernelSU-Next
           EOF
 
       - name: Set release body SukiSU
@@ -124,7 +124,7 @@ jobs:
         run: |
           cat << 'EOF' > release_body.md      
           This release includes SukiSU
-        
+          
           Features:
           -> SukiSU-Stable
           -> SUSFS ඞ v2.0.0
@@ -134,13 +134,13 @@ jobs:
           -> Futile hiding for jit-zygote-cache detection
           -> Wireguard Support
           -> BBR Supported
-      
+          
           <details>
           <summary>Notes:</summary>
           - -> In SUS SU Mode 2, it will show as disabled or incompatible, the reason is that non-kprobe hooks were used (when compiling the kernel), and non-kprobe hooks are no longer needed!
           - -> In the latest version of susfs, flashing AK3 compressed package with Kernel Flasher will brick your device, try [Horizon Kernel Flasher]\(https://github.com/libxzr/HorizonKernelFlasher)!
           </details>
-        
+          
           Modules:
           -> https://github.com/sidex15/ksu_module_susfs
           SukiSU Manager:
