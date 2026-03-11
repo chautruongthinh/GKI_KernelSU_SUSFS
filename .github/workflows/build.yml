@@ -186,7 +186,7 @@ jobs:
           elif [[ "$KSU_VARIANT" == "SukiSU" ]]; then
               KSU_COMMIT="builtin"          
           elif [[ "$KSU_VARIANT" == "WKSU" ]]; then
-              KSU_COMMIT="wild"
+              KSU_COMMIT="canary"
           else
               KSU_COMMIT="$KSU_COMMIT_INPUT"
           fi          
